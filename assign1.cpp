@@ -138,7 +138,5 @@ if(argc==0 || argc<4 || argc>4)
 		cout << *i << ' ';
 	}
 
-	system("PAUSE");
-
 return 0;
 }
