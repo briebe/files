@@ -90,6 +90,8 @@ if(argc==0 || argc<4 || argc>4)
 	int src = atoi(argv[2]);
 
 	int target = atoi(argv[3]);
+	
+	if(target<0 || target > counter || src<0 || src>counter) return 2;
 
 	// Push startVertex into priority queue and set it's distance to 0
     pq.push(make_pair(0, src));
@@ -147,6 +149,6 @@ if(argc==0 || argc<4 || argc>4)
 	{
 		cout << *i << ' ';
 	}
-
+		cout << endl;
 return 0;
 }
