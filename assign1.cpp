@@ -2,16 +2,25 @@
 #include <string>
 #include <fstream>
 #include <queue>
+#include <cstdlib>
 
 #define INF 0x3f3f3f3f
 
 using namespace std;
 
-typedef pair<int, int> iPair;
+typedef pair<float, int> iPair;
 
-int main() {
-	ifstream data;
-	data.open("dat2.txt",ios_base::in);
+int main(int argc, char* argv[]) {
+
+if(argc==0 || argc<4 || argc>4) 
+	{
+		cout << "Usage: ./program_name tgf_file source target" << endl;
+		return 0;
+}
+
+
+	ifstream data;	
+	data.open(argv[1],ios_base::in);
 	
 	string line;
 	int counter = 0;
@@ -32,7 +41,9 @@ int main() {
 		}
 	}
 	
-		float datamatrix[counter][counter] = {0};
+		float** datamatrix= new float*[counter];
+		for (int i = 0; i < counter; ++i)
+		datamatrix[i] = new float[counter];
 
 	//putting node numbers and values into a matrix
 
@@ -73,15 +84,18 @@ int main() {
 
 	// Initiate start parameters
 
-	// Creates an vector for all distances and fill it with infinite
-    vector<int> distances(counter, INF);
+	// Creates an vector for distance and previous vertex and fill it with infinite
+    vector<iPair> distances(counter, make_pair(INF, INF));
 
-	int src = 0;
+	int src = atoi(argv[2]);
+
+	int target = atoi(argv[3]);
+
 	// Push startVertex into priority queue and set it's distance to 0
     pq.push(make_pair(0, src));
-    distances[src] = 0;
+    distances[src].first = 0;
 
-    /* Looping till all vertices was selected */
+    // Looping till all vertices was selected
     while (!pq.empty())
     {
 	      int selectedVertex = pq.top().second;
@@ -90,26 +104,41 @@ int main() {
 		  for(int i = 0; i < counter; ++i)
 		  {
 			  if(datamatrix[selectedVertex][i] != 0 ){
-			  int weightOfVertexToCheck = datamatrix[selectedVertex][i];
+			  float weightOfVertexToCheck = datamatrix[selectedVertex][i];
 			  int labelOfVertexToCheck = i;
-			   //printf("selectedVertex: %d , labelOfVertexToCheck: %d\n",selectedVertex, labelOfVertexToCheck);
-			   //printf("distances[labelOfVertexToCheck]: %d > distances[selectedVertex]: %d + weightOfVertexToCheck: %d\n",distances[labelOfVertexToCheck], distances[selectedVertex], weightOfVertexToCheck);
-			if (distances[labelOfVertexToCheck] > distances[selectedVertex] + weightOfVertexToCheck)
+			if (distances[labelOfVertexToCheck].first > distances[selectedVertex].first + weightOfVertexToCheck)
             {
-				//printf("\nUpdate\n\n");
                 // Updating distance
-                distances[labelOfVertexToCheck] = distances[selectedVertex] + weightOfVertexToCheck;
-                pq.push(make_pair(distances[labelOfVertexToCheck], labelOfVertexToCheck));
+                distances[labelOfVertexToCheck].first = distances[selectedVertex].first + weightOfVertexToCheck;
+				// save the previous vertex
+				distances[labelOfVertexToCheck].second = selectedVertex;
+                pq.push(make_pair(distances[labelOfVertexToCheck].first, labelOfVertexToCheck));
             }
 			}
 		  }
 
     }
- 
-    // Print shortest distances
-    printf("Vertex || Distance from source\n");
-    for (int i = 0; i < counter; ++i)
-        printf("%d || %d\n", i, distances[i]);
+
+	// Print length of shortest path
+	cout << distances[target].first << endl;
+
+	// Print path
+	vector<int> path;
+	path.push_back(target);
+	// Go throw the chain of previous vertices and add them to the path vector
+	while(distances[target].second != INF)
+	{
+		path.push_back(distances[target].second);
+		target = distances[target].second;
+	}
+
+	// Print path from source to target
+	for (vector<int>::reverse_iterator i = path.rbegin(); i != path.rend(); ++i)
+	{
+		cout << *i << ' ';
+	}
+
+	system("PAUSE");
 
 return 0;
- }
+}
