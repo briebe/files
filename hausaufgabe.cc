@@ -1,13 +1,26 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <queue>
+#include <cstdlib>
+
+#define INF 0x3f3f3f3f
 
 using namespace std;
 
+typedef pair<int, int> iPair;
 
-int main() {
-	ifstream data;
-	data.open("dat2.txt",ios_base::in);
+int main(int argc, char* argv[]) {
+
+if(argc==0 || argc<4 || argc>4) 
+	{
+		cout << "Usage: ./program_name tgf_file source target" << endl;
+		return 0;
+}
+
+
+	ifstream data;	
+	data.open(argv[1],ios_base::in);
 	
 	string line;
 	int counter = 0;
@@ -16,7 +29,7 @@ int main() {
 	
 	while(getline(data,line)){
 		
-		cout << line << "\n";
+		//cout << line << "\n";
 		
 		if(line != "#"){
 					
@@ -28,7 +41,9 @@ int main() {
 		}
 	}
 	
-		float datamatrix[counter][counter] = {0};
+		float** datamatrix= new float*[counter];
+		for (int i = 0; i < counter; ++i)
+		datamatrix[i] = new float[counter];
 
 	//putting node numbers and values into a matrix
 
@@ -45,8 +60,8 @@ int main() {
 			float weight = stof(line.substr(found2+1));
 		
 			
-			cout << node1 << " " << node2 << endl;
-			cout << weight << endl;
+			//cout << node1 << " " << node2 << endl;
+			//cout << weight << endl;
 			
 			
 			datamatrix[node1][node2] = weight;
@@ -63,6 +78,55 @@ int main() {
 		}
 		
 
+	 //Creates a Min heap
+    priority_queue< iPair, vector <iPair> , greater<iPair> > pq;
+
+
+	 //Initiate start parameters
+
+	 //Creates an vector for all distances and fill it with infinite
+    vector<int> distances(counter, INF);
+
+	int src = atoi(argv[2]);
+
+	int target = atoi(argv[3]);
+
+	 //Push startVertex into priority queue and set it's distance to 0
+    pq.push(make_pair(0, src));
+    distances[src] = 0;
+
+    /* Looping till all vertices was selected */
+    while (!pq.empty())
+    {
+	      int selectedVertex = pq.top().second;
+		  pq.pop();
+
+		  for(int i = 0; i < counter; ++i)
+		  {
+			  if(datamatrix[selectedVertex][i] != 0 ){
+			  int weightOfVertexToCheck = datamatrix[selectedVertex][i];
+			  int labelOfVertexToCheck = i;
+			   printf("selectedVertex: %d , labelOfVertexToCheck: %d\n",selectedVertex, labelOfVertexToCheck);
+			   printf("distances[labelOfVertexToCheck]: %d > distances[selectedVertex]: %d + weightOfVertexToCheck: %d\n",distances[labelOfVertexToCheck], distances[selectedVertex], weightOfVertexToCheck);
+			if (distances[labelOfVertexToCheck] > distances[selectedVertex] + weightOfVertexToCheck)
+            {
+				printf("\nUpdate\n\n");
+                 //Updating distance
+                distances[labelOfVertexToCheck] = distances[selectedVertex] + weightOfVertexToCheck;
+                pq.push(make_pair(distances[labelOfVertexToCheck], labelOfVertexToCheck));
+            }
+			}
+		  }
+
+    }
+ 
+     //Print shortest distances
+    /*printf("Vertex || Distance from source\n");
+    for (int i = 0; i < counter; ++i)
+        printf("%d || %d\n", i, distances[i]);
+        */
+        
+        printf("\n Distance from source to target: %d\n",distances[target]);
 
 return 0;
- }
+}
