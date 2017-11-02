@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
 if(argc==0 || argc<4 || argc>4) 
 	{
 		cout << "Usage: ./program_name tgf_file source target" << endl;
-		return 0;
+		return 2;
 }
 
 
@@ -119,18 +119,28 @@ if(argc==0 || argc<4 || argc>4)
 
     }
 
-	// Print length of shortest path
-	cout << distances[target].first << endl;
+	
 
 	// Print path
 	vector<int> path;
 	path.push_back(target);
+
 	// Go throw the chain of previous vertices and add them to the path vector
-	while(distances[target].second != INF)
+	int i = target;
+	while(distances[i].second != INF)
 	{
-		path.push_back(distances[target].second);
-		target = distances[target].second;
+		path.push_back(distances[i].second);
+		i = distances[i].second;
 	}
+
+	//if there is no path to the target (or source and target are the same), return 1
+	if(path.size() <= 1)
+	{
+		return 1;
+	}
+
+	// Print length of shortest path
+	cout << distances[target].first << endl;
 
 	// Print path from source to target
 	for (vector<int>::reverse_iterator i = path.rbegin(); i != path.rend(); ++i)
